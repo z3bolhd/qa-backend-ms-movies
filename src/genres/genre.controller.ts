@@ -11,7 +11,7 @@ import {
 import { RolesGuard } from "@auth/guards/role.guard";
 
 import { Public, Roles } from "@common/decorators";
-import { Role } from "@repo/database";
+import { Role } from "@prisma/client";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { GenreResponse } from "./responses";

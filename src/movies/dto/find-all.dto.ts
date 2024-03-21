@@ -1,5 +1,5 @@
 import { ApiProperty, ApiQuery } from "@nestjs/swagger";
-import { Location } from "@repo/database";
+import { Location } from "@prisma/client";
 import { Transform, Type } from "class-transformer";
 import { IsArray, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 

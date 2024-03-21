@@ -8,7 +8,7 @@ import {
 } from "@nestjs/common";
 import { hashSync, genSaltSync } from "bcrypt";
 
-import { Role, User } from "@repo/database";
+import { Role, User } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { JwtPayload } from "@auth/interfaces";
 import { CACHE_MANAGER, Cache } from "@nestjs/cache-manager";

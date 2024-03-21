@@ -6,7 +6,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { Role } from "@repo/database";
+import { Role } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
 import { CreateReviewDto, EditReviewDto } from "./dto";
 

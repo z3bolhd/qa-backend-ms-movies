@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import { RolesGuard } from "@auth/guards/role.guard";
 import { CurrentUser, Public, Roles } from "@common/decorators";
-import { Role } from "@repo/database";
+import { Role } from "@prisma/client";
 
 import { ReviewsService } from "./reviews.service";
 import type { JwtPayload } from "@auth/interfaces";

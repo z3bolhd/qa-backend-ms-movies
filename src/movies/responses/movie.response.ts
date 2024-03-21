@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Location } from "@repo/database";
+import { Location } from "@prisma/client";
 
 export class MovieResponse {
   @ApiProperty({ example: 2 })

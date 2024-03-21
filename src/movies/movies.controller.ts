@@ -14,7 +14,7 @@ import {
 } from "@nestjs/common";
 import { RolesGuard } from "@auth/guards/role.guard";
 
-import { Role } from "@repo/database";
+import { Role } from "@prisma/client";
 import {
   ApiBearerAuth,
   ApiBody,

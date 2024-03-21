@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Role } from "@repo/database";
+import { Role } from "@prisma/client";
 import { IsArray, IsBoolean, IsEnum, IsOptional, IsString } from "class-validator";
 
 export class EditUserDto {
