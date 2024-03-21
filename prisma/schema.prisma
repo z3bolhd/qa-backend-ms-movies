@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String                 @id @default(uuid())
+  email                String                 @unique
+  fullName             String                 @map("full_name")
+  password             String
+  createdAt            DateTime               @default(now()) @map("created_at")
+  updatedAt            DateTime               @updatedAt @map("updated_at")
+  verified             Boolean                @default(false)
+  banned               Boolean                @default(false)
+  roles                Role[]
+  Token                Token[]
+  UserMailConfirmation UserMailConfirmation[]
+  Review               Review[]
+  Payment              Payment[]
+
+  @@map("users")
+}
+
+model Token {
+  token     String   @unique
+  exp       DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  userAgent String   @map("user_agent")
+
+  @@map("tokens")
+}
+
+model UserMailConfirmation {
+  email String @id
+  user  User   @relation(fields: [email], references: [email], onDelete: Cascade)
+  token String @unique
+
+  @@map("user_mail_confirmations")
+}
+
+model Movie {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  price       Int
+  description String
+  imageUrl    String?   @map("image_url")
+  location    Location
+  published   Boolean   @default(false)
+  rating      Float     @default(0)
+  reviews     Review[]
+  genreId     Int       @map("genre_id")
+  genre       Genre     @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  Payment     Payment[]
+
+  @@map("movies")
+}
+
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String
+  movies Movie[]
+
+  @@map("genres")
+}
+
+model Review {
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId   Int      @map("movie_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id")
+  hidden    Boolean  @default(false)
+  text      String?
+  rating    Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([userId, movieId])
+  @@unique([userId, movieId])
+  @@map("reviews")
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @map("user_id")
+  movie     Movie    @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  movieId   Int      @map("movie_id")
+  status    Status
+  amount    Int
+  total     Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("payments")
+}
+
+enum Status {
+  SUCCESS
+  INVALID_CARD
+  ERROR
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum Location {
+  MSK
+  SPB
+}
