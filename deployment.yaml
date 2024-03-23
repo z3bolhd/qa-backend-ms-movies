@@ -3,6 +3,8 @@ kind: Deployment
 metadata:
   name: backend-ms-movies-test
   namespace: dev
+  annotations:
+    kubernetes.io/change-cause: "force-redeploy"
 spec:
   replicas: 2
   strategy:
