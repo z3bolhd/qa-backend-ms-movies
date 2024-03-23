@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend-ms-movies-test
-  namespace: default
+  namespace: dev
 spec:
   replicas: 2
   strategy:
