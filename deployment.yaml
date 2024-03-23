@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-ms-movies-test
+  namespace: default
+spec:
+  replicas: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: backend-ms-movies-test
+  template:
+    metadata:
+      labels:
+        app: backend-ms-movies-test
+    spec:
+      containers:
+        - name: backend-ms-movies-test
+          image: zebolhd/qa-backend-ms-movies:1.00
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: qa-secret
+          ports:
+            - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-ms-movies-test
+  namespace: default
+spec:
+  selector:
+    app: backend-ms-movies-test
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+      nodePort: 31550
+  type: NodePort
