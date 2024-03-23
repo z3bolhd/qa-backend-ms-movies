@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-ms-movies-test
+  name: backend-ms-movies
   namespace: dev
   labels:
-    app: backend-ms-movies-test
+    app: backend-ms-movies
 spec:
   replicas: 2
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: backend-ms-movies-test
+      app: backend-ms-movies
   template:
     metadata:
       labels:
-        app: backend-ms-movies-test
-        version: "1.01"
+        app: backend-ms-movies
+        version: "1.00"
     spec:
       containers:
-        - name: backend-ms-movies-test
+        - name: backend-ms-movies
           image: zebolhd/qa-backend-ms-movies:latest
           imagePullPolicy: Always
           envFrom:
@@ -32,11 +32,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-ms-movies-test
+  name: backend-ms-movies
   namespace: dev
 spec:
   selector:
-    app: backend-ms-movies-test
+    app: backend-ms-movies
   ports:
     - protocol: TCP
       port: 5000
