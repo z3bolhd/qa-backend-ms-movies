@@ -24,7 +24,7 @@ spec:
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
-                name: qa-secret
+                name: qa-config
           ports:
             - containerPort: 5000
 
