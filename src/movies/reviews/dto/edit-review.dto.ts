@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export class EditReviewDto {
   @IsNumber({}, { message: "Поле rating должно быть числом" })
