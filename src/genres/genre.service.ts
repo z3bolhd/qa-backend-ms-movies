@@ -25,7 +25,8 @@ export class GenreService {
           name: dto.name,
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to create genre. This genre already exists: ${dto.name}`);
         throw new ConflictException("Такой жанр уже существует");
       });
@@ -41,7 +42,8 @@ export class GenreService {
           id,
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to delete genre. Genre with id: ${id} not found`);
         throw new NotFoundException("Жанр не найден");
       });
@@ -59,7 +61,8 @@ export class GenreService {
           id,
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to find genre. Genre with id: ${id} not found`);
         throw new NotFoundException("Жанр не найден");
       });

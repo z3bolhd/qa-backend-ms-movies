@@ -26,7 +26,7 @@ export class ReviewsService {
 
     if (!movie) {
       this.logger.error(`Failed to get reviews for movie with id: ${id}. Movie not found`);
-      throw new NotFoundException();
+      throw new NotFoundException("Фильм не найден");
     }
 
     const reviews = await this.prismaService.review.findMany({
@@ -112,7 +112,8 @@ export class ReviewsService {
           ...dto,
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to edit review for movie with id: ${movieId} and user with id: ${user.id}`);
         throw new NotFoundException("Отзыв не найден");
       });
@@ -138,7 +139,9 @@ export class ReviewsService {
             },
           },
         })
-        .catch(() => {
+        .catch((e) => {
+          this.logger.error(e);
+          this.logger.error(`Failed to delete review for movie with id: ${movieId} and user with id: ${userId}`);
           throw new NotFoundException("Отзыв не найден");
         });
 
@@ -174,7 +177,8 @@ export class ReviewsService {
           },
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to delete review for movie with id: ${movieId} and user with id: ${user.id}`);
         throw new NotFoundException("Отзыв не найден");
       });
@@ -215,7 +219,8 @@ export class ReviewsService {
           },
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to ${isHidden ? 'hide' : 'show'} review for movie with id: ${movieId} and user with id: ${userId}`);
         throw new NotFoundException("Отзыв не найден");
       });
@@ -245,7 +250,8 @@ export class ReviewsService {
           rating: rating || 0,
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to update rating for movie with id: ${movieId}`);
         throw new NotFoundException("Фильм не найден");
       });

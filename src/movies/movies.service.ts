@@ -62,7 +62,7 @@ export class MoviesService {
       })
       .catch(() => {
         this.logger.error("Failed to find movies or wrong query");
-        throw new BadRequestException();
+        throw new BadRequestException("Некорректные данные");
       });
 
     const count = await this.prismaService.movie
@@ -120,7 +120,7 @@ export class MoviesService {
 
     if (!movie) {
       this.logger.error(`Movie with id: ${id} not found`);
-      throw new NotFoundException();
+      throw new NotFoundException("Фильм не найден");
     }
 
     this.logger.log(`Found movie with id: ${id}`);
@@ -154,9 +154,10 @@ export class MoviesService {
           },
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to create movie. Wrong data: ${JSON.stringify(dto)}`);
-        throw new BadRequestException();
+        throw new BadRequestException("Некорректные данные");
       });
 
     this.logger.log(`Created movie with id: ${movie.id}`);
@@ -193,9 +194,10 @@ export class MoviesService {
           },
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Movie with id: ${id} not found`);
-        throw new NotFoundException();
+        throw new NotFoundException("Фильм не найден");
       });
 
     this.logger.log(`Deleted movie with id: ${id}`);
@@ -232,7 +234,8 @@ export class MoviesService {
           },
         },
       })
-      .catch(() => {
+      .catch((e) => {
+        this.logger.error(e);
         this.logger.error(`Failed to edit movie with id: ${movieId}. Wrong data: ${JSON.stringify(dto)}`);
         throw new NotFoundException("Фильм не найден");
       });
