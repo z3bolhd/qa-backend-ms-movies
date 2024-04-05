@@ -17,7 +17,7 @@ spec:
     metadata:
       labels:
         app: backend-ms-movies
-        version: "1.01"
+        version: "1.02"
     spec:
       containers:
         - name: backend-ms-movies
