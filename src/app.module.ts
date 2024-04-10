@@ -7,9 +7,11 @@ import { APP_GUARD } from "@nestjs/core";
 import { JwtAuthGuard } from "./auth/guards/jwt-auth.guard";
 import { MoviesModule } from "./movies/movies.module";
 import { GenresModule } from "./genres/genres.module";
+import { LoggerModule } from "nestjs-pino";
 
 @Module({
   imports: [
+    LoggerModule.forRoot(),
     PrismaModule,
     AuthModule,
     MoviesModule,

@@ -3,21 +3,25 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
-  Logger,
   NotFoundException,
 } from "@nestjs/common";
 import { Role } from "@prisma/client";
 import { PrismaService } from "@prisma/prisma.service";
+import { PinoLogger } from "nestjs-pino";
+
 import { CreateReviewDto, EditReviewDto } from "./dto";
 
 @Injectable()
 export class ReviewsService {
-  constructor(private readonly prismaService: PrismaService) {}
-
-  private readonly logger = new Logger(ReviewsService.name);
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(ReviewsService.name);
+  }
 
   async getMovieReviews(id: number) {
-    this.logger.log(`Finding reviews for movie with id: ${id}`);
+    this.logger.info({ movie: { id } }, "Find movie reviews");
     const movie = await this.prismaService.movie.findUnique({
       where: {
         id,
@@ -25,7 +29,7 @@ export class ReviewsService {
     });
 
     if (!movie) {
-      this.logger.error(`Failed to get reviews for movie with id: ${id}. Movie not found`);
+      this.logger.error({ movie: { id } }, "Find movie reviews failed. Movie not found");
       throw new NotFoundException("Фильм не найден");
     }
 
@@ -46,13 +50,13 @@ export class ReviewsService {
       },
     });
 
-    this.logger.log(`Found ${reviews.length} reviews for movie with id: ${id}`);
+    this.logger.info({ movie: { id } }, "Found movie reviews");
 
     return reviews;
   }
 
   async create(user: JwtPayload, movieId: number, dto: CreateReviewDto) {
-    this.logger.log(`Creating review for movie with id: ${movieId}`);
+    this.logger.info({ user, movie: { id: movieId }, review: dto }, "Create review");
     const _review = await this.prismaService.review.findUnique({
       where: {
         userId_movieId: {
@@ -63,7 +67,10 @@ export class ReviewsService {
     });
 
     if (_review) {
-      this.logger.error(`User with id: ${user.id} already reviewed movie with id: ${movieId}`);
+      this.logger.error(
+        { user, movie: { id: movieId }, review: dto },
+        "Create review failed. Review already exists",
+      );
       throw new ConflictException("Вы уже оставляли отзыв к этому фильму");
     }
 
@@ -86,20 +93,24 @@ export class ReviewsService {
           },
         },
       })
-      .catch(() => {
-        this.logger.error(`Failed to create review for movie with id: ${movieId}`);
+      .catch((e) => {
+        this.logger.debug(e, "Failed to create review");
+        this.logger.error(
+          { user, movie: { id: movieId }, review: dto },
+          "Create review failed. Movie not found",
+        );
         throw new NotFoundException("Фильм не найден");
       });
 
     await this.updateMovieRating(movieId);
 
-    this.logger.log(`Created review for movie with id: ${movieId}`);
+    this.logger.info({ user, movie: { id: movieId }, review: dto }, "Created review");
 
     return review;
   }
 
   async edit(user: JwtPayload, movieId: number, dto: EditReviewDto) {
-    this.logger.log(`Editing review for movie with id: ${movieId} and user with id: ${user.id}`);
+    this.logger.info({ user, movie: { id: movieId }, review: dto }, "Edit review");
     const review = await this.prismaService.review
       .update({
         where: {
@@ -113,20 +124,20 @@ export class ReviewsService {
         },
       })
       .catch((e) => {
-        this.logger.error(e);
-        this.logger.error(`Failed to edit review for movie with id: ${movieId} and user with id: ${user.id}`);
+        this.logger.debug(e, "Failed to edit review");
+        this.logger.error({ user, movie: { id: movieId }, review: dto }, "Edit review failed");
         throw new NotFoundException("Отзыв не найден");
       });
 
     await this.updateMovieRating(movieId);
 
-    this.logger.log(`Edited review for movie with id: ${movieId} and user with id: ${user.id}`);
+    this.logger.info({ user, movie: { id: movieId }, review: dto }, "Edited review");
 
     return review;
   }
 
   async delete(user: JwtPayload, movieId: number, userId: string) {
-    this.logger.log(`Deleting review for movie with id: ${movieId} and user with id: ${userId}`);
+    this.logger.info({ user, movie: { id: movieId }, review: { userId } }, "Delete review");
     const isAdmin = user.roles.some((role) => role === Role.ADMIN || role === Role.SUPER_ADMIN);
 
     if (isAdmin && userId) {
@@ -140,20 +151,26 @@ export class ReviewsService {
           },
         })
         .catch((e) => {
-          this.logger.error(e);
-          this.logger.error(`Failed to delete review for movie with id: ${movieId} and user with id: ${userId}`);
+          this.logger.debug(e, "Failed to delete review");
+          this.logger.error(
+            { user, movie: { id: movieId }, review: { userId } },
+            "Delete review failed",
+          );
           throw new NotFoundException("Отзыв не найден");
         });
 
       await this.updateMovieRating(movieId);
 
-      this.logger.log(`Deleted review for movie with id: ${movieId} and user with id: ${userId}`);
+      this.logger.info({ user, movie: { id: movieId }, review: { userId } }, "Deleted review");
 
       return review;
     }
 
     if (userId && user.id !== userId) {
-      this.logger.error(`Failed to delete review. User with id: ${user.id} is not owner of review with id: ${userId}`);
+      this.logger.error(
+        { user, movie: { id: movieId }, review: { userId } },
+        "Delete review failed. User does not own the review",
+      );
       throw new ForbiddenException();
     }
 
@@ -178,8 +195,11 @@ export class ReviewsService {
         },
       })
       .catch((e) => {
-        this.logger.error(e);
-        this.logger.error(`Failed to delete review for movie with id: ${movieId} and user with id: ${user.id}`);
+        this.logger.debug(e, "Failed to delete review");
+        this.logger.error(
+          { user, movie: { id: movieId }, review: { userId } },
+          "Delete review failed. Review not found",
+        );
         throw new NotFoundException("Отзыв не найден");
       });
 
@@ -189,11 +209,10 @@ export class ReviewsService {
   }
 
   async showOrHide(movieId: number, userId: string, isHidden: boolean) {
-
-    if(isHidden){
-      this.logger.log(`Hiding review for movie with id: ${movieId} and user with id: ${userId}`);
-    }else{
-      this.logger.log(`Showing review for movie with id: ${movieId} and user with id: ${userId}`);
+    if (isHidden) {
+      this.logger.info({ user: { userId }, movie: { movieId } }, "Hiding review");
+    } else {
+      this.logger.info({ user: { userId }, movie: { movieId } }, "Showing review");
     }
 
     const review = await this.prismaService.review
@@ -220,8 +239,11 @@ export class ReviewsService {
         },
       })
       .catch((e) => {
-        this.logger.error(e);
-        this.logger.error(`Failed to ${isHidden ? 'hide' : 'show'} review for movie with id: ${movieId} and user with id: ${userId}`);
+        this.logger.debug(e, "Failed to hide review");
+        this.logger.error(
+          { user: { userId }, movie: { movieId } },
+          `Failed to ${isHidden ? "hide" : "show"} review`,
+        );
         throw new NotFoundException("Отзыв не найден");
       });
 
@@ -229,7 +251,7 @@ export class ReviewsService {
   }
 
   async updateMovieRating(movieId: number) {
-    this.logger.log(`Updating rating for movie with id: ${movieId}`);
+    this.logger.info({ movie: { id: movieId } }, "Update movie rating");
 
     const reviews = await this.prismaService.review.findMany({
       where: {
@@ -251,8 +273,8 @@ export class ReviewsService {
         },
       })
       .catch((e) => {
-        this.logger.error(e);
-        this.logger.error(`Failed to update rating for movie with id: ${movieId}`);
+        this.logger.debug(e, "Failed to update rating");
+        this.logger.error({ movie: { id: movieId } }, "Failed to update rating");
         throw new NotFoundException("Фильм не найден");
       });
   }
