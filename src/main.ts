@@ -13,7 +13,7 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  const HOST = configService.get<string>("HOST_AUTH_URL");
+  const HOST = configService.get<string>("HOST_MOVIES_URL");
 
   app.useLogger(app.get(Logger));
 
