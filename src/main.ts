@@ -25,8 +25,8 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const config = new DocumentBuilder()
-    .setTitle("Movies api")
-    .setDescription("This api for movies")
+    .setTitle("Movies API")
+    .setDescription("This API for movies")
     .setVersion("1.03.1")
     .addServer(HOST, "API server")
     .setExternalDoc("Коллекция json", HOST + "/swagger-json")
