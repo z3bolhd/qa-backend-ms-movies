@@ -6,9 +6,14 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { Logger } from "nestjs-pino";
 
 import { AppModule } from "./app.module";
+import { ConfigService } from "@nestjs/config";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+
+  const HOST = configService.get<string>("HOST_AUTH_URL");
 
   app.useLogger(app.get(Logger));
 
@@ -22,8 +27,9 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("Movies api")
     .setDescription("This api for movies")
-    .setVersion("1.03")
-    .setExternalDoc("Коллекция json", "/swagger-json")
+    .setVersion("1.03.1")
+    .addServer(HOST, "API server")
+    .setExternalDoc("Коллекция json", HOST + "/swagger-json")
     .addBearerAuth()
     .build();
 
