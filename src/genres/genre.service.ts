@@ -1,4 +1,9 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PrismaService } from "@prisma/prisma.service";
 import { PinoLogger } from "nestjs-pino";
 
@@ -25,6 +30,23 @@ export class GenreService {
   async create(dto: CreateGenreDto) {
     this.logger.info({ genre: dto }, "Create genre");
 
+    const _genre = await this.prismaService.genre
+      .findFirst({
+        where: {
+          name: dto.name,
+        },
+      })
+      .catch((e) => {
+        this.logger.error(e);
+        this.logger.error({ genre: dto }, "Failed to create genre");
+        throw new BadRequestException("Некорректные данные");
+      });
+
+    if (_genre) {
+      this.logger.error({ name: dto.name }, "Failed to create genre. Genre already exists");
+      throw new ConflictException("Такой жанр уже существует");
+    }
+
     const genre = await this.prismaService.genre
       .create({
         data: {
@@ -33,7 +55,7 @@ export class GenreService {
       })
       .catch((e) => {
         this.logger.debug(e, "Failed to create genre");
-        this.logger.error({ genre: dto }, `Failed to create genre. Genre already exists`);
+        this.logger.error({ genre: dto }, "Failed to create genre. Genre already exists");
         throw new ConflictException("Такой жанр уже существует");
       });
 
