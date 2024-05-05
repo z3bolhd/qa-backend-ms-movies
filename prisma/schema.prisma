@@ -63,7 +63,7 @@ model Movie {
 
 model Genre {
   id     Int     @id @default(autoincrement())
-  name   String
+  name   String  @unique
   movies Movie[]
 
   @@map("genres")
