@@ -27,7 +27,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle("Movies API")
     .setDescription("This API for movies")
-    .setVersion("1.03.1")
+    .setVersion("1.05")
     .addServer(HOST, "API server")
     .setExternalDoc("Коллекция json", HOST + "/swagger-json")
     .addBearerAuth()
