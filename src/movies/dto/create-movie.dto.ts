@@ -3,11 +3,13 @@ import { Location } from "@prisma/client";
 import {
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   IsUrl,
+  Min,
 } from "class-validator";
 
 export class CreateMovieDto {
@@ -15,10 +17,10 @@ export class CreateMovieDto {
     required: true,
     default: "Название фильма",
   })
+  @IsNotEmpty({ message: "Поле name не может быть пустым" })
   @IsString({
     message: "Поле name должно быть строкой",
   })
-  @IsNotEmpty()
   readonly name: string;
 
   @ApiProperty({
@@ -36,18 +38,21 @@ export class CreateMovieDto {
     required: true,
     default: 100,
   })
+  @IsNotEmpty({ message: "Поле price не может быть пустым" })
   @IsNumber(
     {},
     {
       message: "Поле price должно быть числом",
     },
   )
+  @Min(1, { message: "Поле price должно быть больше 0" })
   readonly price: number;
 
   @ApiProperty({
     required: true,
     default: "Описание фильма",
   })
+  @IsNotEmpty({ message: "Поле description не может быть пустым" })
   @IsString({
     message: "Поле description должно быть строкой",
   })
@@ -58,6 +63,7 @@ export class CreateMovieDto {
     enum: Location,
     default: Location.SPB,
   })
+  @IsNotEmpty({ message: "Поле location не может быть пустым" })
   @IsString({
     message: "Поле location должно быть строкой",
   })
@@ -70,6 +76,7 @@ export class CreateMovieDto {
     required: true,
     default: true,
   })
+  @IsNotEmpty({ message: "Поле published не может быть пустым" })
   @IsBoolean({
     message: "Поле published должно быть булевым значением",
   })
@@ -79,11 +86,13 @@ export class CreateMovieDto {
     required: true,
     default: 1,
   })
+  @IsNotEmpty({ message: "Поле genreId не может быть пустым" })
   @IsNumber(
     {},
     {
       message: "Поле genreId должно быть числом",
     },
   )
+  @IsInt({ message: "Поле genreId должно быть целым числом" })
   readonly genreId: number;
 }

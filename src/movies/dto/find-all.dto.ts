@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Location } from "@prisma/client";
 import { Transform, Type } from "class-transformer";
-import { IsArray, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import { IsArray, IsInt, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 
 enum Sort {
   ASC = "asc",
@@ -18,6 +18,7 @@ export class FindAllQueryDto {
   })
   @IsOptional()
   @IsNumber({}, { message: "Поле pageSize должно быть числом" })
+  @IsInt({ message: "Поле pageSize должно быть целым числом" })
   @Min(1, { message: "Поле pageSize имеет минимальную величину 1" })
   @Max(20, { message: "Поле pageSize имеет максимальную величину 20" })
   readonly pageSize: number = 10;
@@ -30,6 +31,7 @@ export class FindAllQueryDto {
   })
   @IsOptional()
   @IsNumber({}, { message: "Поле page должно быть числом" })
+  @IsInt({ message: "Поле page должно быть целым числом" })
   @Min(1, { message: "Поле page имеет минимальную величину 1" })
   readonly page: number = 1;
 
@@ -62,7 +64,7 @@ export class FindAllQueryDto {
     required: false,
   })
   @IsOptional()
-  @IsArray()
+  @IsArray({ message: "Поле locations должно быть массивом" })
   @IsString({ each: true })
   @Type(() => String)
   @Transform(({ value }) =>
@@ -90,6 +92,7 @@ export class FindAllQueryDto {
   })
   @IsOptional()
   @IsNumber({}, { message: "Поле genreId должно быть числом" })
+  @IsInt({ message: "Поле genreId должно быть целым числом" })
   @Min(1, { message: "Поле genreId имеет минимальную величину 1" })
   readonly genreId: number;
 

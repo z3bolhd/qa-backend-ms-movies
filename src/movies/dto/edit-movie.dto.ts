@@ -1,6 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Location } from "@prisma/client";
-import { IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUrl, Min } from "class-validator";
+import {
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Min,
+} from "class-validator";
 
 export class EditMovieDto {
   @ApiProperty({
@@ -61,6 +70,7 @@ export class EditMovieDto {
   })
   @IsOptional()
   @IsNumber({}, { message: "Поле genreId должно быть числом" })
-  @Min(1)
+  @IsInt({ message: "Поле genreId должно быть целым числом" })
+  @Min(1, { message: "Поле genreId имеет минимальную величину 1" })
   readonly genreId: number;
 }

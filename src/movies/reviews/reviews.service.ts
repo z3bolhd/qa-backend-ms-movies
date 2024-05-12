@@ -42,6 +42,7 @@ export class ReviewsService {
         text: true,
         rating: true,
         createdAt: true,
+        hidden: true,
         user: {
           select: {
             fullName: true,
@@ -85,6 +86,7 @@ export class ReviewsService {
           userId: true,
           text: true,
           rating: true,
+          hidden: true,
           createdAt: true,
           user: {
             select: {
@@ -121,6 +123,18 @@ export class ReviewsService {
         },
         data: {
           ...dto,
+        },
+        select: {
+          userId: true,
+          text: true,
+          rating: true,
+          hidden: true,
+          createdAt: true,
+          user: {
+            select: {
+              fullName: true,
+            },
+          },
         },
       })
       .catch((e) => {
@@ -231,6 +245,7 @@ export class ReviewsService {
           text: true,
           rating: true,
           createdAt: true,
+          hidden: true,
           user: {
             select: {
               fullName: true,

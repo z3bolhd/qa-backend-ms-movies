@@ -117,6 +117,7 @@ export class MoviesService {
             text: true,
             rating: true,
             createdAt: true,
+            hidden: true,
             user: {
               select: {
                 fullName: true,
