@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: backend-ms-movies
-          image: zebolhd/qa-backend-ms-movies:latest
+          image: registry.dev-cinescope.store/qa-backend-ms-movies:latest
           resources:
             requests:
               memory: "64Mi"
@@ -37,6 +37,8 @@ spec:
                 name: qa-secret
           ports:
             - containerPort: 5000
+      imagePullSecrets:
+        - name: regcred
 
 ---
 apiVersion: v1
