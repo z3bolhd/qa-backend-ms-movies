@@ -2,9 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "@prisma/prisma.service";
+import { PrismaService } from "@prismadb/prisma.service";
 
 import { CreateMovieDto, EditMovieDto, FindAllQueryDto } from "./dto";
 import { MovieResponse } from "./responses";
@@ -106,32 +107,38 @@ export class MoviesService {
       },
       "Find movie",
     );
-    const movie = await this.prismaService.movie.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        reviews: {
-          select: {
-            userId: true,
-            text: true,
-            rating: true,
-            createdAt: true,
-            hidden: true,
-            user: {
-              select: {
-                fullName: true,
+    const movie = await this.prismaService.movie
+      .findUnique({
+        where: {
+          id,
+        },
+        include: {
+          reviews: {
+            select: {
+              userId: true,
+              text: true,
+              rating: true,
+              createdAt: true,
+              hidden: true,
+              user: {
+                select: {
+                  fullName: true,
+                },
               },
             },
           },
-        },
-        genre: {
-          select: {
-            name: true,
+          genre: {
+            select: {
+              name: true,
+            },
           },
         },
-      },
-    });
+      })
+      .catch((e) => {
+        this.logger.debug(e, "Failed to find movie");
+        this.logger.error({ movie: { id } }, "Movie not found");
+        throw new InternalServerErrorException("Возникла ошибка при поиске фильма");
+      });
 
     if (!movie) {
       this.logger.error({ movie: { id } }, "Movie not found");
@@ -145,14 +152,9 @@ export class MoviesService {
 
   async create(dto: CreateMovieDto) {
     this.logger.info({ movie: dto }, "Create movie");
-    const _movie = await this.prismaService.movie.findUnique({
-      where: {
-        name: dto.name,
-      },
-    });
 
-    if (_movie) {
-      this.logger.error({ name: dto.name }, "Movie already exists");
+    if (await this.checkIsMovieExists({ name: dto.name })) {
+      this.logger.error({ movie: dto }, "Create movie failed. Movie already exists");
       throw new ConflictException("Фильм с таким названием уже существует");
     }
 
@@ -182,6 +184,12 @@ export class MoviesService {
 
   async delete(id: number) {
     this.logger.info({ movie: { id } }, "Delete movie");
+
+    if (!(await this.checkIsMovieExists({ id }))) {
+      this.logger.error({ movie: { id } }, "Failed to delete movie. Movie not found");
+      throw new NotFoundException("Фильм не найден");
+    }
+
     const movie = await this.prismaService.movie
       .delete({
         where: {
@@ -211,7 +219,7 @@ export class MoviesService {
       .catch((e) => {
         this.logger.debug(e, "Failed to delete movie");
         this.logger.error({ movie: { id } }, "Failed to delete movie");
-        throw new NotFoundException("Фильм не найден");
+        throw new BadRequestException("Некорректные данные");
       });
 
     this.logger.info({ movie }, "Deleted movie");
@@ -221,6 +229,11 @@ export class MoviesService {
 
   async edit(movieId: number, dto: EditMovieDto) {
     this.logger.info({ movie: { id: movieId, dto } }, "Edit movie");
+
+    if (!(await this.checkIsMovieExists({ id: movieId }))) {
+      this.logger.error({ movie: { id: movieId, dto } }, "Edit movie failed. Movie not found");
+      throw new NotFoundException("Фильм не найден");
+    }
 
     const movie: MovieResponse = await this.prismaService.movie
       .update({
@@ -251,9 +264,22 @@ export class MoviesService {
       .catch((e) => {
         this.logger.debug(e, "Failed to edit movie");
         this.logger.error({ movie: { id: movieId, dto } }, "Failed to edit movie");
-        throw new NotFoundException("Фильм не найден");
+        throw new BadRequestException("Некорректные данные");
       });
 
     return movie;
+  }
+
+  private async checkIsMovieExists({ id, name }: { id?: number; name?: string }): Promise<boolean> {
+    const movie = await this.prismaService.movie
+      .findUnique({
+        where: {
+          id,
+          name,
+        },
+      })
+      .catch(() => null);
+
+    return movie !== null;
   }
 }

@@ -15,13 +15,13 @@ import { Role } from "@prisma/client";
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 import { GenreResponse } from "./responses";
-import { GenreService } from "./genre.service";
+import { GenresService } from "./genres.service";
 import { CreateGenreDto } from "./dto";
 
 @ApiTags("Жанры")
 @Controller("genres")
 export class GenresController {
-  constructor(private readonly genreService: GenreService) {}
+  constructor(private readonly genresService: GenresService) {}
 
   @Public()
   @ApiOperation({
@@ -34,7 +34,7 @@ export class GenresController {
   })
   @Get()
   async findAll() {
-    return await this.genreService.findAll();
+    return await this.genresService.findAll();
   }
 
   @ApiBearerAuth()
@@ -58,7 +58,7 @@ export class GenresController {
   })
   @Post()
   async create(@Body(new ValidationPipe()) dto: CreateGenreDto) {
-    return await this.genreService.create(dto);
+    return await this.genresService.create(dto);
   }
 
   @ApiBearerAuth()
@@ -82,7 +82,7 @@ export class GenresController {
   })
   @Delete(":id")
   async delete(@Param("id") id: string) {
-    return await this.genreService.delete(+id);
+    return await this.genresService.delete(+id);
   }
 
   @Public()
@@ -103,7 +103,7 @@ export class GenresController {
     type: Number,
   })
   @Get(":id")
-  async findById(@Param("id") id: string) {
-    return await this.genreService.findById(+id);
+  async findOne(@Param("id") id: string) {
+    return await this.genresService.findOne(+id);
   }
 }

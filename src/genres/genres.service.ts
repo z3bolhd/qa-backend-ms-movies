@@ -1,21 +1,21 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "@prisma/prisma.service";
+import { PrismaService } from "@prismadb/prisma.service";
 import { PinoLogger } from "nestjs-pino";
 
 import { CreateGenreDto } from "./dto";
 
 @Injectable()
-export class GenreService {
+export class GenresService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly logger: PinoLogger,
   ) {
-    this.logger.setContext(GenreService.name);
+    this.logger.setContext(GenresService.name);
   }
 
   async findAll() {
@@ -30,19 +30,7 @@ export class GenreService {
   async create(dto: CreateGenreDto) {
     this.logger.info({ genre: dto }, "Create genre");
 
-    const _genre = await this.prismaService.genre
-      .findFirst({
-        where: {
-          name: dto.name,
-        },
-      })
-      .catch((e) => {
-        this.logger.error(e);
-        this.logger.error({ genre: dto }, "Failed to create genre");
-        throw new BadRequestException("Некорректные данные");
-      });
-
-    if (_genre) {
+    if (await this.checkIsGenreExists({ name: dto.name })) {
       this.logger.error({ name: dto.name }, "Failed to create genre. Genre already exists");
       throw new ConflictException("Такой жанр уже существует");
     }
@@ -64,6 +52,12 @@ export class GenreService {
 
   async delete(id: number) {
     this.logger.info({ genre: { id } }, "Delete genre");
+
+    if (!(await this.checkIsGenreExists({ id }))) {
+      this.logger.error({ genre: { id } }, "Failed to delete genre. Genre not found");
+      throw new NotFoundException("Жанр не найден");
+    }
+
     const genre = await this.prismaService.genre
       .delete({
         where: {
@@ -73,7 +67,7 @@ export class GenreService {
       .catch((e) => {
         this.logger.debug(e, "Failed to delete genre");
         this.logger.error(`Failed to delete genre. Genre with id: ${id} not found`);
-        throw new NotFoundException("Жанр не найден");
+        throw new InternalServerErrorException("Произошла ошибка при удалении жанра");
       });
 
     this.logger.info({ genre }, "Deleted genre");
@@ -81,19 +75,15 @@ export class GenreService {
     return genre;
   }
 
-  async findById(id: number) {
+  async findOne(id: number) {
     this.logger.info({ genre: { id } }, "Find genre");
     const genre = await this.prismaService.genre
-      .findFirst({
+      .findUnique({
         where: {
           id,
         },
       })
-      .catch((e) => {
-        this.logger.error(e, "Failed to find genre");
-        this.logger.error({ genre: { id } }, "Failed to find genre. Genre not found");
-        throw new NotFoundException("Жанр не найден");
-      });
+      .catch(() => null);
 
     if (!genre) {
       this.logger.error({ genre: { id } }, `Failed to find genre. Genre not found`);
@@ -103,5 +93,18 @@ export class GenreService {
     this.logger.info({ genre }, "Found genre");
 
     return genre;
+  }
+
+  private async checkIsGenreExists({ id, name }: { id?: number; name?: string }) {
+    const genre = await this.prismaService.genre
+      .findUnique({
+        where: {
+          id,
+          name,
+        },
+      })
+      .catch(() => null);
+
+    return genre !== null;
   }
 }
