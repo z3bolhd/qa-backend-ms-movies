@@ -1,12 +1,8 @@
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-} from "@nestjs/common";
+import { ConflictException, Injectable, Logger } from "@nestjs/common";
 import { hashSync, genSaltSync } from "bcrypt";
 
 import { Role, User } from "@prisma/client";
-import { PrismaService } from "@prisma/prisma.service";
+import { PrismaService } from "@prismadb/prisma.service";
 import { ConfigService } from "@nestjs/config";
 
 @Injectable()

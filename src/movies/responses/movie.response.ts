@@ -22,7 +22,7 @@ export class MovieResponse {
   readonly imageUrl: string;
 
   @ApiProperty({ enum: Location, example: Location.MSK })
-  readonly location: string;
+  readonly location: Location;
 
   @ApiProperty({ example: true })
   readonly published: boolean;
