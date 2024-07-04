@@ -4,6 +4,7 @@ import { pathsToModuleNameMapper } from "ts-jest";
 
 const config: Config = {
   moduleFileExtensions: ["js", "json", "ts"],
+  verbose: true,
   rootDir: ".",
   testRegex: ".*\\.spec\\.ts$",
   transform: {
