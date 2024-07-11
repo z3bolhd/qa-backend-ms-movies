@@ -7,7 +7,7 @@ import {
 @ValidatorConstraint()
 export class IsValueTrimmedConstraint implements ValidatorConstraintInterface {
   validate(value: string) {
-    return value.trim() === value;
+    return String(value).trim() === String(value);
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {
