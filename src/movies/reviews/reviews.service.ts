@@ -21,7 +21,7 @@ export class ReviewsService {
     this.logger.setContext(ReviewsService.name);
   }
 
-  async getMovieReviews(movieId: number) {
+  async findAll(movieId: number) {
     this.logger.info({ movie: { movieId } }, "Find movie reviews");
 
     if (!(await this.checkIsMovieExists(movieId))) {
@@ -255,7 +255,15 @@ export class ReviewsService {
     return review;
   }
 
-  async showOrHide(movieId: number, userId: string, isHidden: boolean) {
+  async hide(movieId: number, userId: string) {
+    return this.showOrHide(movieId, userId, true);
+  }
+
+  async show(movieId: number, userId: string) {
+    return this.showOrHide(movieId, userId, false);
+  }
+
+  private async showOrHide(movieId: number, userId: string, isHidden: boolean) {
     if (isHidden) {
       this.logger.info({ user: { userId }, movie: { movieId } }, "Hiding review");
     } else {

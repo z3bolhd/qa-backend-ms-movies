@@ -23,6 +23,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
@@ -52,7 +53,7 @@ export class ReviewsController {
   @ApiResponse({ status: 404, description: "Фильм не найден" })
   @Get(":movieId/reviews")
   async get(@Param("movieId") movieId: string) {
-    return await this.reviewsService.getMovieReviews(+movieId);
+    return await this.reviewsService.findAll(+movieId);
   }
 
   @ApiBearerAuth()
@@ -136,11 +137,11 @@ export class ReviewsController {
     example: 1,
     type: Number,
   })
-  @ApiParam({
+  @ApiQuery({
     name: "userId",
     description: "Идентификатор пользователя",
-    example: "67723995-bae2-42a4-971b-14fe801c77a5",
-    required: false,
+    example: 1,
+    type: Number,
   })
   @ApiOkResponse({
     status: 200,
@@ -181,7 +182,7 @@ export class ReviewsController {
   @ApiResponse({ status: 404, description: "Отзыв не найден" })
   @Patch(":movieId/reviews/hide/:userId")
   async hide(@Param("movieId") movieId: string, @Param("userId") userId: string) {
-    return await this.reviewsService.showOrHide(+movieId, userId, true);
+    return await this.reviewsService.hide(+movieId, userId);
   }
 
   @ApiBearerAuth()
@@ -209,6 +210,6 @@ export class ReviewsController {
   @ApiResponse({ status: 404, description: "Отзыв не найден" })
   @Patch(":movieId/reviews/show/:userId")
   async show(@Param("movieId") movieId: string, @Param("userId") userId: string) {
-    return await this.reviewsService.showOrHide(+movieId, userId, false);
+    return await this.reviewsService.show(+movieId, userId);
   }
 }
