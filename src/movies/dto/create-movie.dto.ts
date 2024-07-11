@@ -1,5 +1,7 @@
+import { IsValueTrimmedConstraint } from "@common/decorators";
 import { ApiProperty } from "@nestjs/swagger";
 import { Location } from "@prisma/client";
+import { Transform } from "class-transformer";
 import {
   IsBoolean,
   IsEnum,
@@ -10,6 +12,8 @@ import {
   IsString,
   IsUrl,
   Min,
+  MinLength,
+  Validate,
 } from "class-validator";
 
 export class CreateMovieDto {
@@ -21,17 +25,20 @@ export class CreateMovieDto {
   @IsString({
     message: "Поле name должно быть строкой",
   })
+  @Validate(IsValueTrimmedConstraint)
+  @MinLength(3, { message: "Поле name должно содержать не менее 3 символов" })
   readonly name: string;
 
   @ApiProperty({
     required: false,
-    default: "https://image.url",
+    default: "https://example.com/image.png",
   })
   @IsOptional()
   @IsString({
     message: "Поле imageUrl должно быть строкой",
   })
   @IsUrl({}, { message: "Неверная ссылка" })
+  @Transform(({ value }) => value.trim())
   readonly imageUrl: string;
 
   @ApiProperty({
@@ -56,6 +63,8 @@ export class CreateMovieDto {
   @IsString({
     message: "Поле description должно быть строкой",
   })
+  @Validate(IsValueTrimmedConstraint)
+  @MinLength(5, { message: "Поле description должно содержать не менее 5 символов" })
   readonly description: string;
 
   @ApiProperty({
@@ -94,5 +103,6 @@ export class CreateMovieDto {
     },
   )
   @IsInt({ message: "Поле genreId должно быть целым числом" })
+  @Min(1, { message: "Поле genreId должно быть больше 0" })
   readonly genreId: number;
 }

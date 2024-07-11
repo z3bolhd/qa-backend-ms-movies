@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Location } from "@prisma/client";
-import { Transform, Type } from "class-transformer";
-import { IsArray, IsInt, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsArray, IsEnum, IsInt, IsNumber, IsOptional, IsString, Max, Min } from "class-validator";
 
 enum Sort {
   ASC = "asc",
@@ -43,8 +43,8 @@ export class FindAllQueryDto {
   })
   @IsOptional()
   @IsNumber({}, { message: "Поле minPrice должно быть числом" })
-  @Min(1, { message: "Поле minPrice имеет минимальную величину 1" })
-  readonly minPrice: number = 1;
+  @Min(0, { message: "Поле minPrice имеет минимальную величину 0" })
+  readonly minPrice: number = 0;
 
   @ApiProperty({
     minimum: 1,
@@ -59,18 +59,36 @@ export class FindAllQueryDto {
   @ApiProperty({
     enum: Location,
     isArray: true,
+    type: String,
+    format: "form",
+    default: Object.keys(Location).toString(),
     title: "locations",
-    example: Object.keys(Location),
     required: false,
   })
   @IsOptional()
   @IsArray({ message: "Поле locations должно быть массивом" })
+  @IsEnum(Location, {
+    each: true,
+    message: "Каждое значение в поле locations должно быть одним из значений: MSK, SPB",
+  })
   @IsString({ each: true })
-  @Type(() => String)
-  @Transform(({ value }) =>
-    typeof value === "string" ? value.split(",") : Object.values(Location),
+  @Transform(
+    ({ value }) => {
+      if (typeof value === "string") {
+        return value.split(",");
+      }
+
+      if (Array.isArray(value)) {
+        return value;
+      }
+
+      return [];
+    },
+    {
+      toClassOnly: true,
+    },
   )
-  readonly locations: Location[] = Object.values(Location);
+  readonly locations: Location[] = [];
 
   @ApiProperty({
     title: "published",
@@ -87,7 +105,6 @@ export class FindAllQueryDto {
   @ApiProperty({
     minimum: 1,
     title: "genreId",
-    default: 1,
     required: false,
   })
   @IsOptional()

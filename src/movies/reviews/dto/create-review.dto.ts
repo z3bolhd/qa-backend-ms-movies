@@ -1,5 +1,15 @@
+import { IsValueTrimmedConstraint } from "@common/decorators";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsInt, IsNotEmpty, IsNumber, IsString, Max, Min } from "class-validator";
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Max,
+  Min,
+  MinLength,
+  Validate,
+} from "class-validator";
 
 export class CreateReviewDto {
   @ApiProperty({ example: 4 })
@@ -13,5 +23,7 @@ export class CreateReviewDto {
   @ApiProperty({ example: "Хорошее кино" })
   @IsNotEmpty({ message: "Поле text не может быть пустым" })
   @IsString({ message: "Поле text должно быть строкой" })
+  @Validate(IsValueTrimmedConstraint)
+  @MinLength(3, { message: "Поле text должно содержать не менее 3 символов" })
   readonly text: string;
 }
