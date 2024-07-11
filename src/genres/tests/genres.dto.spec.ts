@@ -14,14 +14,36 @@ describe("GenresDto", () => {
     };
   });
 
-  it("should not validate empty CreateGenreDto", async () => {
-    await expect(target.transform({}, { type: "body", metatype: CreateGenreDto })).rejects.toThrow(
-      BadRequestException,
-    );
-  });
+  describe("CreateGenreDto", () => {
+    it("should validate dto", async () => {
+      const dto: CreateGenreDto = omit(genreDto, "id");
+      expect(await target.transform(dto, { type: "body", metatype: CreateGenreDto })).toEqual(dto);
+    });
 
-  it("should validate CreateGenreDto", async () => {
-    const dto: CreateGenreDto = omit(genreDto, "id");
-    expect(await target.transform(dto, { type: "body", metatype: CreateGenreDto })).toEqual(dto);
+    it("should not validate dto with empty body", async () => {
+      await expect(
+        target.transform({}, { type: "body", metatype: CreateGenreDto }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should validate dto with valid name", async () => {
+      const correctNames = ["Название жанра", "НаЗеИмя жанра", "Имя", "Название"];
+
+      for (const name of correctNames) {
+        expect(
+          await target.transform({ name }, { type: "body", metatype: CreateGenreDto }),
+        ).toEqual({ name });
+      }
+    });
+
+    it("should not validate dto with invalid name", async () => {
+      const wrongNames = ["   a   ", "Им", "   Имя", "Название  ", "Название1"];
+
+      for (const name of wrongNames) {
+        expect(
+          target.transform({ name }, { type: "body", metatype: CreateGenreDto }),
+        ).rejects.toThrow(BadRequestException);
+      }
+    });
   });
 });

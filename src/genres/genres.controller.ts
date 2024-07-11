@@ -57,7 +57,7 @@ export class GenresController {
     description: "Такой жанр уже существует",
   })
   @Post()
-  async create(@Body(new ValidationPipe()) dto: CreateGenreDto) {
+  async create(@Body(new ValidationPipe({ transform: true })) dto: CreateGenreDto) {
     return await this.genresService.create(dto);
   }
 

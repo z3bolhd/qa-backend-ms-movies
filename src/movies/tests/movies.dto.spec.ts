@@ -11,7 +11,7 @@ describe("MoviesDto", () => {
     movieDto = {
       id: 5,
       name: "test",
-      description: "test",
+      description: "test description",
       genreId: 3,
       imageUrl: "test.ru",
       location: Location.MSK,
@@ -22,37 +22,56 @@ describe("MoviesDto", () => {
     };
   });
 
-  it("should validate empty findAllMoviesDto", async () => {
-    await expect(await target.transform({}, { type: "query", metatype: FindAllQueryDto })).toEqual(
-      new FindAllQueryDto(),
-    );
-  });
+  describe("CreateMovieDto", () => {
+    it("should validate dto", async () => {
+      const queryDto = {
+        page: 1,
+        pageSize: 10,
+        minPrice: 0,
+        maxPrice: 100,
+        locations: [Location.SPB],
+        createdAt: "desc",
+        genreId: 5,
+        published: true,
+      } as FindAllQueryDto;
 
-  it("should not validate findAllMoviesDto with negative page", async () => {
-    const query = {
-      page: -1,
-    } as FindAllQueryDto;
-    await expect(
-      target.transform(query, { type: "query", metatype: FindAllQueryDto }),
-    ).rejects.toThrow(BadRequestException);
-  });
+      expect(
+        await target.transform(queryDto, { type: "query", metatype: FindAllQueryDto }),
+      ).toEqual(queryDto);
+    });
 
-  it("should not validate findAllMoviesDto with negative pageSize", async () => {
-    const query = {
-      pageSize: -1,
-    } as FindAllQueryDto;
-    await expect(
-      target.transform(query, { type: "query", metatype: FindAllQueryDto }),
-    ).rejects.toThrow(BadRequestException);
-  });
+    it("should validate empty dto", async () => {
+      await expect(
+        await target.transform({}, { type: "query", metatype: FindAllQueryDto }),
+      ).toEqual(new FindAllQueryDto());
+    });
 
-  it("should not validate findAllMoviesDto with wrong minPrice", async () => {
-    const query = {
-      minPrice: -1,
-    } as FindAllQueryDto;
-    await expect(
-      target.transform(query, { type: "query", metatype: FindAllQueryDto }),
-    ).rejects.toThrow(BadRequestException);
+    it("should not validate findAllMoviesDto with negative page", async () => {
+      const query = {
+        page: -1,
+      } as FindAllQueryDto;
+      await expect(
+        target.transform(query, { type: "query", metatype: FindAllQueryDto }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should not validate findAllMoviesDto with negative pageSize", async () => {
+      const query = {
+        pageSize: -1,
+      } as FindAllQueryDto;
+      await expect(
+        target.transform(query, { type: "query", metatype: FindAllQueryDto }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("should not validate findAllMoviesDto with wrong minPrice", async () => {
+      const query = {
+        minPrice: -1,
+      } as FindAllQueryDto;
+      await expect(
+        target.transform(query, { type: "query", metatype: FindAllQueryDto }),
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   it("should validate createMovieDto", async () => {
