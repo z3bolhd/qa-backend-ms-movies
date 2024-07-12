@@ -88,7 +88,7 @@ export class FindAllQueryDto {
       toClassOnly: true,
     },
   )
-  readonly locations: Location[] = [];
+  readonly locations: Location[] = Object.values(Location);
 
   @ApiProperty({
     title: "published",
