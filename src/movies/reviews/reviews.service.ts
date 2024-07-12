@@ -188,7 +188,7 @@ export class ReviewsService {
       throw new ForbiddenException();
     }
 
-    const userIdReview = isAdmin ? userId : user.id;
+    const userIdReview = isAdmin && userId ? userId : user.id;
 
     if (!(await this.checkIsReviewExists(userIdReview, movieId))) {
       this.logger.error(
