@@ -172,6 +172,7 @@ export class ReviewsService {
 
   async delete(user: JwtPayload, movieId: number, userId: string) {
     this.logger.info({ user, movie: { id: movieId }, review: { userId } }, "Delete review");
+
     const isAdmin = user.roles.some((role) => role === Role.ADMIN || role === Role.SUPER_ADMIN);
 
     if (!(await this.checkIsMovieExists(movieId))) {
@@ -179,46 +180,22 @@ export class ReviewsService {
       throw new NotFoundException("Фильм не найден");
     }
 
-    if (!(await this.checkIsReviewExists(userId, movieId))) {
-      this.logger.error(
-        { user, movie: { id: movieId }, review: { userId } },
-        "Delete review failed. Review not found",
-      );
-      throw new NotFoundException("Отзыв не найден");
-    }
-
-    if (isAdmin && userId) {
-      const review = await this.prismaService.review
-        .delete({
-          where: {
-            userId_movieId: {
-              userId,
-              movieId,
-            },
-          },
-        })
-        .catch((e) => {
-          this.logger.debug(e, "Failed to delete review");
-          this.logger.error(
-            { user, movie: { id: movieId }, review: { userId } },
-            "Delete review failed",
-          );
-          throw new NotFoundException("Отзыв не найден");
-        });
-
-      await this.updateMovieRating(movieId);
-
-      this.logger.info({ user, movie: { id: movieId }, review: { userId } }, "Deleted review");
-
-      return review;
-    }
-
-    if (userId && user.id !== userId) {
+    if (!isAdmin && user.id !== userId) {
       this.logger.error(
         { user, movie: { id: movieId }, review: { userId } },
         "Delete review failed. User does not own the review",
       );
       throw new ForbiddenException();
+    }
+
+    const userIdReview = isAdmin ? userId : user.id;
+
+    if (!(await this.checkIsReviewExists(userIdReview, movieId))) {
+      this.logger.error(
+        { user, movie: { id: movieId }, review: { userId } },
+        "Delete review failed. Review not found",
+      );
+      throw new NotFoundException("Отзыв не найден");
     }
 
     const review = await this.prismaService.review

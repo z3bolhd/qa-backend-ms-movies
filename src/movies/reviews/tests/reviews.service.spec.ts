@@ -268,7 +268,7 @@ describe("ReviewsService", () => {
       await expect(reviewsService.delete(user, 1, "2")).rejects.toThrow(ForbiddenException);
 
       expect(prismaMock.movie.findUnique).toHaveBeenCalled();
-      expect(prismaMock.review.findUnique).toHaveBeenCalled();
+      expect(prismaMock.review.findUnique).not.toHaveBeenCalled();
       expect(prismaMock.movie.update).not.toHaveBeenCalled();
       expect(prismaMock.review.delete).not.toHaveBeenCalled();
     });
