@@ -75,7 +75,7 @@ export class MoviesController {
 
   @ApiBearerAuth()
   @UseGuards(RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Создание фильма",
     description: "Создание фильма" + "\n\n" + "**Roles: SUPER_ADMIN**",
@@ -91,7 +91,7 @@ export class MoviesController {
 
   @ApiBearerAuth()
   @UseGuards(RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Удаление фильма",
     description: "Удаление фильма" + "\n\n" + "**Roles: SUPER_ADMIN**",
@@ -107,7 +107,7 @@ export class MoviesController {
 
   @ApiBearerAuth()
   @UseGuards(RolesGuard)
-  @Roles(Role.SUPER_ADMIN)
+  @Roles(Role.ADMIN)
   @ApiOperation({
     summary: "Редактирование фильма",
     description: "Редактирование фильма" + "\n\n" + "**Roles: SUPER_ADMIN**",
