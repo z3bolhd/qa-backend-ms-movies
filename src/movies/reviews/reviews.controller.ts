@@ -141,7 +141,7 @@ export class ReviewsController {
     name: "userId",
     description: "Идентификатор пользователя",
     example: 1,
-    type: Number,
+    type: String,
   })
   @ApiOkResponse({
     status: 200,
@@ -173,6 +173,7 @@ export class ReviewsController {
   @ApiParam({
     name: "userId",
     description: "Идентификатор пользователя",
+    type: String,
     example: "67723995-bae2-42a4-971b-14fe801c77a5",
   })
   @ApiOkResponse({
@@ -201,6 +202,7 @@ export class ReviewsController {
   @ApiParam({
     name: "userId",
     description: "Идентификатор пользователя",
+    type: String,
     example: "67723995-bae2-42a4-971b-14fe801c77a5",
   })
   @ApiOkResponse({
