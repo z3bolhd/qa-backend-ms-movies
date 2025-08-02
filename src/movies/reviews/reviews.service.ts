@@ -170,8 +170,8 @@ export class ReviewsService {
     return review;
   }
 
-  async delete(user: JwtPayload, movieId: number, userId: string) {
-    this.logger.info({ user, movie: { id: movieId }, review: { userId } }, "Delete review");
+  async delete(user: JwtPayload, movieId: number, paramsUserId: string) {
+    this.logger.info({ user, movie: { id: movieId }, review: { paramsUserId } }, "Delete review");
 
     const isAdmin = user.roles.some((role) => role === Role.ADMIN || role === Role.SUPER_ADMIN);
 
@@ -180,19 +180,19 @@ export class ReviewsService {
       throw new NotFoundException("Фильм не найден");
     }
 
-    if (!isAdmin && user.id !== userId) {
+    if (!isAdmin && paramsUserId && user.id !== paramsUserId) {
       this.logger.error(
-        { user, movie: { id: movieId }, review: { userId } },
+        { user, movie: { id: movieId }, review: { paramsUserId } },
         "Delete review failed. User does not own the review",
       );
       throw new ForbiddenException();
     }
 
-    const userIdReview = isAdmin && userId ? userId : user.id;
+    const userIdReview = isAdmin && paramsUserId ? paramsUserId : user.id;
 
     if (!(await this.checkIsReviewExists(userIdReview, movieId))) {
       this.logger.error(
-        { user, movie: { id: movieId }, review: { userId } },
+        { user, movie: { id: movieId }, review: { paramsUserId } },
         "Delete review failed. Review not found",
       );
       throw new NotFoundException("Отзыв не найден");
@@ -221,7 +221,7 @@ export class ReviewsService {
       .catch((e) => {
         this.logger.debug(e, "Failed to delete review");
         this.logger.error(
-          { user, movie: { id: movieId }, review: { userId } },
+          { user, movie: { id: movieId }, review: { paramsUserId } },
           "Delete review failed. Review not found",
         );
         throw new NotFoundException("Отзыв не найден");
