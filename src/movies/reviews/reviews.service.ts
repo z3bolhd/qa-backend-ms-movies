@@ -202,7 +202,7 @@ export class ReviewsService {
       .delete({
         where: {
           userId_movieId: {
-            userId: user.id,
+            userId: userIdReview,
             movieId,
           },
         },
